@@ -1,0 +1,14 @@
+import pygame
+
+# Existing events
+HEARTBEAT_RECEIVED = pygame.USEREVENT + 1
+ELECTION_TIMEOUT = pygame.USEREVENT + 2
+VOTE_REQUEST = pygame.USEREVENT + 3
+VOTE_RESPONSE = pygame.USEREVENT + 4
+LEADER_DIED = pygame.USEREVENT + 5
+
+# New log-related events
+LOG_APPEND = pygame.USEREVENT + 6
+LOG_APPEND_ACK = pygame.USEREVENT + 7
+LOG_COMMIT = pygame.USEREVENT + 8
+HEARTBEAT_SENT = pygame.USEREVENT + 9
