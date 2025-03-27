@@ -6,7 +6,7 @@ from node import Node, NodeState
 from node_network import NodeNetwork
 from enemy import Enemy
 from events import *
-from animations import HeartbeatAnimation
+from animations import HeartbeatAnimation, TextAnimation
 
 logging.basicConfig(level=logging.INFO,
                    format='%(asctime)s - %(message)s',
@@ -20,10 +20,11 @@ def main():
 
     # Create nodes
     nodes = []
-    for i in range(5):
+    nodesNum = 5
+    for i in range(nodesNum):
         x = random.randint(100, 700)
         y = random.randint(100, 500)
-        node = Node(i, x, y, 30)
+        node = Node(i, x, y, 30, nodesNum)
         nodes.append(node)
 
     # Start all node threads
@@ -60,7 +61,40 @@ def main():
                     node.handle_heartbeat(event.from_id, event.term)
             elif event.type == HEARTBEAT_RECEIVED:
                 # Handle vote request in all nodes
+                animations.append(
+                    TextAnimation(event.from_x, event.from_y - 20)
+                )
                 logging.info(f"Heartbeat received from {event.from_id} TERM {event.term}")
+            elif event.type == VOTE_REQUEST:
+                # Handle vote request in all nodes
+                print(f"Vote request received from {event.candidate_id}")
+                for node in nodes:
+                    if node.id == event.candidate_id:
+                        continue
+                    else:
+                        node.handle_vote_request(event.candidate_id, event.term)
+            elif event.type == VOTE_RESPONSE:
+                # Handle vote granted in all nodes
+                print(f"Vote granted to {event.candidate_id} by {event.voter_id}")
+                for node in nodes:
+                    if node.id == event.candidate_id:
+                        
+                        node.handle_vote_response(event.voter_id, event.candidate_id, event.term)
+            elif event.type == ELECTION_COMPLETE:
+                # Handle election complete in all nodes
+                for node in nodes:
+                    if node.id == event.leader_id:
+                        leader = node
+                print(f"Election complete, leader is {event.leader_id}")
+
+            elif event.type == pygame.MOUSEBUTTONDOWN:
+                mouse_x, mouse_y = pygame.mouse.get_pos()
+                for node in nodes:
+                    dx = node.x + node.size/2 - mouse_x
+                    dy = node.y + node.size/2 - mouse_y
+                    if (dx ** 2 + dy ** 2) ** 0.5 < node.size/2:
+                        node.handle_click()
+                        break
 
         screen.fill((255, 255, 255))
 
@@ -79,7 +113,12 @@ def main():
                 distance = (dx ** 2 + dy ** 2) ** 0.5
                 
                 if distance < (leader.size/2 + enemy.size):
-                    leader.health = max(1, leader.health - 0.5)  # Keep health above 1
+                    leader.health = leader.health - 0.5
+                    if leader.health <= 0:
+                        leader.state = NodeState.DEAD
+                        leader.is_active = False
+                        leader = None
+                        break
 
         # Draw nodes
         for node in nodes:

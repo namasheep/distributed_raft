@@ -10,7 +10,7 @@ class Enemy:
         self.x = x
         self.y = y
         self.size = 10
-        self.speed = 2
+        self.speed = 0.5
         
     def move_towards(self, target):
         dx = target.x - self.x
