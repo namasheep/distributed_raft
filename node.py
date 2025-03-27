@@ -46,7 +46,7 @@ class Node(threading.Thread):
                 if self.is_active:
                     # Leader sends heartbeats
                     if self.state == NodeState.LEADER:
-                        if current_time - self.last_heartbeat >= 0.5:  # Heartbeat interval
+                        if current_time - self.last_heartbeat >= 10:  # Heartbeat interval
                             self.send_heartbeat()
                             self.last_heartbeat = current_time
                     
