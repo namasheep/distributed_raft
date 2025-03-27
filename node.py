@@ -22,7 +22,7 @@ class Node(threading.Thread):
         self.health = 100
         self.term = 0
         self.votes_received = 0
-        self.election_timeout = random.uniform(1.5, 3.0)
+        self.election_timeout = random.uniform(7, 15)
         self.last_heartbeat = time.time()
         self.voted_for = None
         
@@ -46,7 +46,7 @@ class Node(threading.Thread):
                 if self.is_active:
                     # Leader sends heartbeats
                     if self.state == NodeState.LEADER:
-                        if current_time - self.last_heartbeat >= 10:  # Heartbeat interval
+                        if current_time - self.last_heartbeat >= 5:  # Heartbeat interval
                             self.send_heartbeat()
                             self.last_heartbeat = current_time
                     
